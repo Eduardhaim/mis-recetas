@@ -4,23 +4,23 @@ import {
   Text,
   TextInput,
   Button,
-  StyleSheet,
   Alert,
-  ScrollView
+  ScrollView,
+  StyleSheet
 } from "react-native";
-
 import { ContextReceta } from "../Contextos/ContextReceta";
+import { Receta } from "../modelos/Receta";
 
 export default function AgregarReceta() {
 
   const { lista, agregar } = useContext(ContextReceta);
 
   const [nombre, setNombre] = useState("");
-  const [ing1, setIng1] = useState("");
-  const [ing2, setIng2] = useState("");
-  const [ing3, setIng3] = useState("");
-  const [ing4, setIng4] = useState("");
-  const [ing5, setIng5] = useState("");
+  const [ingrediente1, setIngrediente1] = useState("");
+  const [ingrediente2, setIngrediente2] = useState("");
+  const [ingrediente3, setIngrediente3] = useState("");
+  const [ingrediente4, setIngrediente4] = useState("");
+  const [ingrediente5, setIngrediente5] = useState("");
 
   function guardar() {
 
@@ -29,23 +29,43 @@ export default function AgregarReceta() {
       return;
     }
 
-    const ingredientes = [
-      ing1,
-      ing2,
-      ing3,
-      ing4,
-      ing5
-    ].filter(ing => ing.trim() !== "");
+    const ingredientes: string[] = [];
+
+    if (ingrediente1.trim() !== "") {
+      ingredientes.push(ingrediente1);
+    }
+
+    if (ingrediente2.trim() !== "") {
+      ingredientes.push(ingrediente2);
+    }
+
+    if (ingrediente3.trim() !== "") {
+      ingredientes.push(ingrediente3);
+    }
+
+    if (ingrediente4.trim() !== "") {
+      ingredientes.push(ingrediente4);
+    }
+
+    if (ingrediente5.trim() !== "") {
+      ingredientes.push(ingrediente5);
+    }
 
     if (ingredientes.length === 0) {
       Alert.alert("Aviso", "Ingrese al menos un ingrediente");
       return;
     }
 
-    const nuevaReceta = {
-      id: lista.length === 0
-        ? 1
-        : Math.max(...lista.map(receta => receta.id)) + 1,
+    let numero = 1;
+
+    for (let i = 0; i < lista.length; i++) {
+      if (lista[i].id >= numero) {
+        numero = lista[i].id + 1;
+      }
+    }
+
+    const nuevaReceta: Receta = {
+      id: numero,
       nombre: nombre,
       ingredientes: ingredientes,
       fecha: new Date().toLocaleDateString()
@@ -53,14 +73,14 @@ export default function AgregarReceta() {
 
     agregar(nuevaReceta);
 
-    Alert.alert("Correcto", "Receta guardada");
+    Alert.alert("Aviso", "Receta agregada correctamente");
 
     setNombre("");
-    setIng1("");
-    setIng2("");
-    setIng3("");
-    setIng4("");
-    setIng5("");
+    setIngrediente1("");
+    setIngrediente2("");
+    setIngrediente3("");
+    setIngrediente4("");
+    setIngrediente5("");
   }
 
   return (
@@ -71,49 +91,46 @@ export default function AgregarReceta() {
       <Text>Nombre de la receta</Text>
       <TextInput
         style={styles.entrada}
+        placeholder="Nombre"
         value={nombre}
         onChangeText={setNombre}
-        placeholder="Nombre"
       />
 
-      <Text>Ingrediente 1</Text>
+      <Text>Ingredientes</Text>
+
       <TextInput
         style={styles.entrada}
-        value={ing1}
-        onChangeText={setIng1}
         placeholder="Ingrediente 1"
+        value={ingrediente1}
+        onChangeText={setIngrediente1}
       />
 
-      <Text>Ingrediente 2</Text>
       <TextInput
         style={styles.entrada}
-        value={ing2}
-        onChangeText={setIng2}
         placeholder="Ingrediente 2"
+        value={ingrediente2}
+        onChangeText={setIngrediente2}
       />
 
-      <Text>Ingrediente 3</Text>
       <TextInput
         style={styles.entrada}
-        value={ing3}
-        onChangeText={setIng3}
         placeholder="Ingrediente 3"
+        value={ingrediente3}
+        onChangeText={setIngrediente3}
       />
 
-      <Text>Ingrediente 4</Text>
       <TextInput
         style={styles.entrada}
-        value={ing4}
-        onChangeText={setIng4}
         placeholder="Ingrediente 4"
+        value={ingrediente4}
+        onChangeText={setIngrediente4}
       />
 
-      <Text>Ingrediente 5</Text>
       <TextInput
         style={styles.entrada}
-        value={ing5}
-        onChangeText={setIng5}
         placeholder="Ingrediente 5"
+        value={ingrediente5}
+        onChangeText={setIngrediente5}
       />
 
       <Button title="Guardar Receta" onPress={guardar} />
@@ -124,20 +141,17 @@ export default function AgregarReceta() {
 
 const styles = StyleSheet.create({
   contenedor: {
-    padding: 20,
+    padding: 20
   },
   titulo: {
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
+    marginBottom: 20
   },
   entrada: {
     borderWidth: 1,
     borderColor: "gray",
     padding: 10,
-    marginTop: 5,
-    marginBottom: 15,
-    borderRadius: 5,
-  },
+    marginBottom: 15
+  }
 });

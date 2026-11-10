@@ -1,80 +1,42 @@
-import { useState, useContext } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Alert
-} from "react-native";
-
+import { useContext } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import { ContextReceta } from "../Contextos/ContextReceta";
-import { Receta } from "../modelos/Receta";
 
 export default function DetalleReceta() {
 
-  const { lista } = useContext(ContextReceta);
+  const { recetaSeleccionada } = useContext(ContextReceta);
 
-  const [numero, setNumero] = useState("");
-  const [receta, setReceta] = useState<Receta | null>(null);
-
-  function buscar() {
-
-    if (numero.trim() === "") {
-      Alert.alert("Aviso", "Ingrese el numero de la receta");
-      return;
-    }
-
-    const encontrada = lista.find(
-      item => item.id === Number(numero)
+  if (recetaSeleccionada === null) {
+    return (
+      <View style={styles.contenedor}>
+        <Text style={styles.titulo}>Detalle de Receta</Text>
+        <Text>Primero busque una receta en la lista</Text>
+      </View>
     );
-
-    if (encontrada) {
-      setReceta(encontrada);
-    } else {
-      setReceta(null);
-      Alert.alert("Aviso", "Receta no encontrada");
-    }
   }
 
   return (
     <View style={styles.contenedor}>
 
-      <Text style={styles.titulo}>Buscar Receta</Text>
+      <Text style={styles.titulo}>Detalle de Receta</Text>
 
-      <Text>Numero de receta</Text>
+      <Text style={styles.nombre}>
+        {recetaSeleccionada.nombre}
+      </Text>
 
-      <TextInput
-        style={styles.entrada}
-        placeholder="Ingrese el numero"
-        keyboardType="numeric"
-        value={numero}
-        onChangeText={setNumero}
+      <Text>Número: {recetaSeleccionada.id}</Text>
+
+      <Text>Fecha: {recetaSeleccionada.fecha}</Text>
+
+      <Text style={styles.subtitulo}>Ingredientes:</Text>
+
+      <FlatList
+        data={recetaSeleccionada.ingredientes}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <Text style={styles.ingrediente}>{item}</Text>
+        )}
       />
-
-      <Button title="Buscar" onPress={buscar} />
-
-      {receta && (
-        <View style={styles.detalle}>
-
-          <Text style={styles.nombre}>
-            {receta.nombre}
-          </Text>
-
-          <Text>Numero: {receta.id}</Text>
-
-          <Text>Fecha: {receta.fecha}</Text>
-
-          <Text style={styles.subtitulo}>Ingredientes:</Text>
-
-          {receta.ingredientes.map((ingrediente, index) => (
-            <Text key={index}>
-              {index + 1}. {ingrediente}
-            </Text>
-          ))}
-
-        </View>
-      )}
 
     </View>
   );
@@ -83,38 +45,26 @@ export default function DetalleReceta() {
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
-    padding: 20,
+    padding: 20
   },
   titulo: {
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  entrada: {
-    borderWidth: 1,
-    borderColor: "gray",
-    padding: 10,
-    marginTop: 10,
-    marginBottom: 15,
-    borderRadius: 5,
-  },
-  detalle: {
-    marginTop: 25,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
+    marginBottom: 20
   },
   nombre: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 15
   },
   subtitulo: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: "bold",
-    marginTop: 15,
-    marginBottom: 10,
+    marginTop: 20,
+    marginBottom: 10
   },
+  ingrediente: {
+    fontSize: 16,
+    marginBottom: 8
+  }
 });

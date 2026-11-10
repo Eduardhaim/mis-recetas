@@ -1,18 +1,41 @@
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import {
   View,
   Text,
-  FlatList,
+  TextInput,
   Button,
-  StyleSheet,
-  Alert
+  FlatList,
+  Alert,
+  StyleSheet
 } from "react-native";
-
+import { useNavigation, NavigationProp, ParamListBase } from "@react-navigation/native";
 import { ContextReceta } from "../Contextos/ContextReceta";
 
 export default function ListaRecetas() {
 
-  const { lista, eliminar } = useContext(ContextReceta);
+  const { lista, eliminar, seleccionarReceta } = useContext(ContextReceta);
+  const [numero, setNumero] = useState("");
+
+  const navegacion = useNavigation<NavigationProp<ParamListBase>>();
+
+  function buscar() {
+
+    let encontrada = false;
+
+    for (let i = 0; i < lista.length; i++) {
+      if (lista[i].id === Number(numero) && numero.trim() !== "") {
+        seleccionarReceta(lista[i]);
+        encontrada = true;
+      }
+    }
+
+    if (encontrada) {
+      navegacion.navigate("Detalle");
+      setNumero("");
+    } else {
+      Alert.alert("Aviso", "No se encontró la receta");
+    }
+  }
 
   function borrar(id: number) {
     eliminar(id);
@@ -24,15 +47,28 @@ export default function ListaRecetas() {
 
       <Text style={styles.titulo}>Lista de Recetas</Text>
 
+      <Text>Ingrese el número de la receta</Text>
+
+      <TextInput
+        style={styles.entrada}
+        placeholder="Número de receta"
+        keyboardType="numeric"
+        value={numero}
+        onChangeText={setNumero}
+      />
+
+      <Button title="Buscar Receta" onPress={buscar} />
+
+      {lista.length === 0 && (
+        <Text style={styles.texto}>No hay recetas registradas</Text>
+      )}
+
       <FlatList
+        style={styles.lista}
         data={lista}
         keyExtractor={(item) => item.id.toString()}
-        ListEmptyComponent={
-          <Text>No hay recetas guardadas</Text>
-        }
         renderItem={({ item }) => (
           <View style={styles.receta}>
-
             <Text style={styles.nombre}>
               {item.id}. {item.nombre}
             </Text>
@@ -43,7 +79,6 @@ export default function ListaRecetas() {
               title="Eliminar"
               onPress={() => borrar(item.id)}
             />
-
           </View>
         )}
       />
@@ -55,24 +90,35 @@ export default function ListaRecetas() {
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
-    padding: 20,
+    padding: 20
   },
   titulo: {
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 20
   },
-  receta: {
+  entrada: {
     borderWidth: 1,
     borderColor: "gray",
-    borderRadius: 5,
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  lista: {
+    marginTop: 20
+  },
+  receta: {
     padding: 15,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "gray",
+    marginBottom: 10
   },
   nombre: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 5
   },
+  texto: {
+    marginTop: 20
+  }
 });
